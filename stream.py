@@ -142,37 +142,6 @@ def bbb_browser():
         element = EC.presence_of_element_located((By.ID, 'message-input'))
         WebDriverWait(browser, selenium_timeout).until(element)
 
-        element = browser.find_element_by_id('message-input')
-        chat_send = browser.find_elements_by_css_selector('[aria-label="Send message"]')[0]
-        # ensure chat is enabled (might be locked by moderator)
-        if element.is_enabled() and chat_send.is_enabled():
-           tmp_chatMsg = os.environ.get('BBB_CHAT_MESSAGE', "This meeting is streamed to")
-           tmp_chatCustomMsg = os.environ.get('BBB_CHAT_CUSTOM_MESSAGE', "This meeting is streamed to")
-           if not tmp_chatMsg in [ 'false', 'False', 'FALSE' ]:
-               if args.target is not None:
-                   tmp_chatUrl = args.target.partition('//')[2].partition('/')[0]
-                   if args.chatUrl:
-                       tmp_chatUrl = args.chatUrl
-                   if args.chatMsg:
-                       tmp_chatMsg = ' '.join(args.chatMsg).strip('"')
-                   tmp_chatMsg = "{0}: {1}".format(tmp_chatMsg, tmp_chatUrl)
-               elif tmp_chatCustomMsg != '':
-                   tmp_chatMsg = tmp_chatCustomMsg
-               else:
-                   tmp_chatMsg = "Recording in progress!"
-               
-               element.send_keys(tmp_chatMsg)
-               chat_send.click()
-
-        if args.chat:
-            try:
-                browser.execute_script("document.querySelector('[aria-label=\"User list\"]').parentElement.style.display='none';")
-            except JavaScriptException:
-                browser.execute_script("document.querySelector('[aria-label=\"Users list\"]').parentElement.style.display='none';")
-        else:
-            element = browser.find_elements_by_id('chat-toggle-button')[0]
-            if element.is_enabled():
-                element.click()
     except NoSuchElementException:
         # ignore (chat might be disabled)
         logging.info("could not find chat input or chat toggle")
@@ -181,26 +150,9 @@ def bbb_browser():
         logging.info("could not find chat input or chat toggle")
 
     time.sleep(10)
-    if not args.chat:
-        try:
-            element = browser.find_elements_by_css_selector('button[aria-label^="Users and messages toggle"]')[0]
-            if element.is_enabled():
-                element.click()
-        except NoSuchElementException:
-            logging.info("could not find users and messages toggle")
-        except ElementClickInterceptedException:
-            logging.info("could not find users and messages toggle")
- 
-    try:
-        browser.execute_script("document.querySelector('[aria-label=\"Users and messages toggle\"]').style.display='none';")
-    except JavascriptException:
-        browser.execute_script("document.querySelector('[aria-label=\"Users and messages toggle with new message notification\"]').style.display='none';")
-    browser.execute_script("document.querySelector('[aria-label=\"Options\"]').style.display='none';")
-    browser.execute_script("document.querySelector('[aria-label=\"Actions bar\"]').style.display='none';")
-    try:
-        browser.execute_script("document.getElementById('container').setAttribute('style','margin-bottom:30px');")
-    except JavascriptException:
-        browser.execute_script("document.getElementById('app').setAttribute('style','margin-bottom:30px');")
+    element = browser.find_element(By.XPATH,"/html/body/div[2]/div/header/div[1]/div[1]/button")
+    if element.is_displayed():
+        element.click()
 
 def create_meeting():
     create_params = {}
