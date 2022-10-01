@@ -6,7 +6,7 @@ ARG FFMPEG_VERSION
 WORKDIR /usr/src/app
 
 RUN apt-get update && apt-get install -y software-properties-common && apt-get update && add-apt-repository ppa:jonathonf/ffmpeg-4
-
+RUN apt-get update && apt-get install -y apt-utils && apt-get install -y curl
 RUN ln -s -f /bin/true /usr/bin/chfn \
     && apt-get update && apt-get install -y \
         python3-pip \
